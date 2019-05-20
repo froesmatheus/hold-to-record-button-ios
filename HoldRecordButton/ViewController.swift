@@ -34,6 +34,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         registerKeyboardNotifications()
+        
         // Setting up AudioSession
         recordingSession = AVAudioSession.sharedInstance()
         AVAudioSession.sharedInstance().requestRecordPermission { (hasPermission) in
@@ -82,7 +83,7 @@ class ViewController: UIViewController {
     }
 }
 
-// MARK: Delegate LongPress gesture do botão enviar
+// MARK: Send button long press gesture delegate
 extension ViewController : UIGestureRecognizerDelegate {
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -90,7 +91,7 @@ extension ViewController : UIGestureRecognizerDelegate {
     }
 }
 
-// MARK: Gravação de áudio
+// MARK: Audio recorder delegate
 extension ViewController : AVAudioRecorderDelegate {
     private func updateInterface(recording: Bool) {
         UIView.animate(withDuration: 0.3, animations: {
@@ -113,33 +114,33 @@ extension ViewController : AVAudioRecorderDelegate {
         })
     }
     
-    @IBAction private func btnEnviarLongPress(_ sender: UILongPressGestureRecognizer) {
-        if sender.state == .began { // Botão de enviar está sendo pressionado, começar a gravar áudio
+    @IBAction private func sendButtonLongPress(_ sender: UILongPressGestureRecognizer) {
+        if sender.state == .began { // Send button is being pressed, start recording
             updateInterface(recording: true)
             startAudioTimer()
             startRecording()
-        } else if sender.state == .ended { // Botão de enviar foi solto, parar gravação
+        } else if sender.state == .ended { // Send button was released, stop recording
             updateInterface(recording: false)
             stopRecording()
-            enviarAudio()
+            sendAudio()
             stopAudioTimer()
-        } else if sender.state == .cancelled { // Botão de enviar foi cancelado, cancelar gravação
+        } else if sender.state == .cancelled { // Send button long press gesture was cancelled, cancel recording
             stopAudioTimer()
             cancelRecording()
             updateInterface(recording: false)
         }
     }
     
-    @IBAction private func btnEnviarPan(_ sender: UIPanGestureRecognizer) {
+    @IBAction private func sendButtonPanGesture(_ sender: UIPanGestureRecognizer) {
         let translation = sender.translation(in: self.view)
         
-        // Só habilitar gesto de deslizar quando o botão estiver sendo pressionado
+        // Enable pan gesture only if the send button is being pressed
         if sender.view != nil && sendButtonLongPressGesture.state == .changed {
             sendButtonTrailingConstraint.constant = sendButtonTrailingConstraint.constant - translation.x
             
-            let porcentagem = 100 * (sendButtonTrailingConstraint.constant / self.view.frame.width)
+            let percentage = 100 * (sendButtonTrailingConstraint.constant / self.view.frame.width)
             
-            if porcentagem > 30 {
+            if percentage > 30 {
                 stopAudioTimer()
             }
         }
@@ -230,7 +231,7 @@ extension ViewController : AVAudioRecorderDelegate {
         }
     }
     
-    private func enviarAudio() {
+    private func sendAudio() {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let documentDirectory = paths[0]
         _ = documentDirectory.appendingPathComponent("\(audioFilename).m4a")

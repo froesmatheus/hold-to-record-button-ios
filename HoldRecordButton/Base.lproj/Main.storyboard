@@ -141,12 +141,12 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
                 <panGestureRecognizer minimumNumberOfTouches="1" id="MTg-i1-sxC">
                     <connections>
-                        <action selector="btnEnviarPan:" destination="BYZ-38-t0r" id="5a0-cH-Gxv"/>
+                        <action selector="sendButtonPanGesture:" destination="BYZ-38-t0r" id="o53-mH-0B3"/>
                     </connections>
                 </panGestureRecognizer>
                 <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.0" id="75n-dG-RdD">
                     <connections>
-                        <action selector="btnEnviarLongPress:" destination="BYZ-38-t0r" id="hDa-17-H1J"/>
+                        <action selector="sendButtonLongPress:" destination="BYZ-38-t0r" id="Oxh-bS-5tG"/>
                     </connections>
                 </pongPressGestureRecognizer>
             </objects>
