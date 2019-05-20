@@ -47,7 +47,7 @@
                                         </connections>
                                     </button>
                                     <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MsG-Fx-sPf">
-                                        <rect key="frame" x="138.5" y="12.5" width="186.5" height="25"/>
+                                        <rect key="frame" x="190" y="12.5" width="135" height="25"/>
                                         <subviews>
                                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Seta Esquerda" translatesAutoresizingMaskIntoConstraints="NO" id="Agq-p0-xTj">
                                                 <rect key="frame" x="0.0" y="0.0" width="25" height="25"/>
@@ -56,8 +56,8 @@
                                                     <constraint firstAttribute="height" constant="25" id="wKv-h9-svw"/>
                                                 </constraints>
                                             </imageView>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="deslize para cancelar" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OtF-ZV-jmm">
-                                                <rect key="frame" x="25" y="0.0" width="161.5" height="25"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="slide to cancel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OtF-ZV-jmm">
+                                                <rect key="frame" x="25" y="0.0" width="110" height="25"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
@@ -124,18 +124,18 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
-                        <outlet property="btnEnviar" destination="EhR-Sl-jTv" id="aKd-S0-hOA"/>
-                        <outlet property="btnEnviarHeightConstraint" destination="9uo-pd-zvn" id="iHa-8t-4p8"/>
-                        <outlet property="btnEnviarLongPressGesture" destination="75n-dG-RdD" id="oNA-4g-txf"/>
-                        <outlet property="btnEnviarPanGesture" destination="MTg-i1-sxC" id="zmf-zu-lcJ"/>
-                        <outlet property="btnEnviarTrailingConstraint" destination="2lT-TS-tzX" id="Q7U-qE-UQX"/>
-                        <outlet property="btnEnviarWidthConstraint" destination="1vp-so-EbF" id="iS5-Rw-i6p"/>
                         <outlet property="containerViewBottomConstraint" destination="42i-zT-1hL" id="enH-gm-Voa"/>
                         <outlet property="ivAudioMic" destination="G1M-rd-GxF" id="jLK-1N-cIR"/>
                         <outlet property="lbAudioTimer" destination="Lai-VG-9vM" id="n9a-l8-T1o"/>
-                        <outlet property="tfMensagem" destination="eb2-2q-atq" id="9Am-xr-j01"/>
+                        <outlet property="sendButton" destination="EhR-Sl-jTv" id="daz-hX-y9A"/>
+                        <outlet property="sendButtonHeightConstraint" destination="9uo-pd-zvn" id="h6X-ty-tft"/>
+                        <outlet property="sendButtonLongPressGesture" destination="75n-dG-RdD" id="Miv-Nx-ecL"/>
+                        <outlet property="sendButtonPanGesture" destination="MTg-i1-sxC" id="bxq-0z-fNT"/>
+                        <outlet property="sendButtonTrailingConstraint" destination="2lT-TS-tzX" id="hqH-Sq-L1N"/>
+                        <outlet property="sendButtonWidthConstraint" destination="1vp-so-EbF" id="L3f-wG-EY8"/>
+                        <outlet property="slideToCancelView" destination="MsG-Fx-sPf" id="CKP-Tv-bCR"/>
+                        <outlet property="textField" destination="eb2-2q-atq" id="MjY-kA-KFm"/>
                         <outlet property="viewAudioTimer" destination="ozM-7W-00V" id="l6W-j6-Tiq"/>
-                        <outlet property="viewDeslizarBtn" destination="MsG-Fx-sPf" id="HAV-n6-bO0"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

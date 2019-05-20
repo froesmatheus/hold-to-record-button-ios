@@ -10,15 +10,15 @@ import UIKit
 import AVFoundation
 
 class ViewController: UIViewController {
-    @IBOutlet private var tfMensagem: UITextField!
-    @IBOutlet private var btnEnviar: UIButton!
+    @IBOutlet private var textField: UITextField!
+    @IBOutlet private var sendButton: UIButton!
     @IBOutlet private var viewAudioTimer: UIView!
-    @IBOutlet private var viewDeslizarBtn: UIStackView!
-    @IBOutlet private var btnEnviarLongPressGesture: UILongPressGestureRecognizer!
-    @IBOutlet private var btnEnviarPanGesture: UIPanGestureRecognizer!
-    @IBOutlet private var btnEnviarWidthConstraint: NSLayoutConstraint!
-    @IBOutlet private var btnEnviarHeightConstraint: NSLayoutConstraint!
-    @IBOutlet private var btnEnviarTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet private var slideToCancelView: UIStackView!
+    @IBOutlet private var sendButtonLongPressGesture: UILongPressGestureRecognizer!
+    @IBOutlet private var sendButtonPanGesture: UIPanGestureRecognizer!
+    @IBOutlet private var sendButtonWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var sendButtonHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private var sendButtonTrailingConstraint: NSLayoutConstraint!
     @IBOutlet private var ivAudioMic: UIImageView!
     @IBOutlet private var lbAudioTimer: UILabel!
     @IBOutlet private var containerViewBottomConstraint: NSLayoutConstraint!
@@ -40,12 +40,12 @@ class ViewController: UIViewController {
             if hasPermission {}
         }
         
-        btnEnviarLongPressGesture.delegate = self
+        sendButtonLongPressGesture.delegate = self
         
-        tfMensagem.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         
-        tfMensagem.placeholder = "Digite aqui..."
-        btnEnviar.backgroundColor = .green
+        textField.placeholder = "Type a message"
+        sendButton.backgroundColor = .blue
     }
     
     private func registerKeyboardNotifications() {
@@ -64,16 +64,16 @@ class ViewController: UIViewController {
         }
     }
 
-    @objc func textFieldDidChange() {
-        let mensagem = tfMensagem.text ?? ""
+    @objc private func textFieldDidChange() {
+        let mensagem = textField.text ?? ""
         if mensagem.isEmpty {
-            btnEnviar.setImage(UIImage(named: "Botao Mic"), for: .normal)
-            btnEnviarLongPressGesture.isEnabled = true
-            btnEnviarPanGesture.isEnabled = true
+            sendButton.setImage(UIImage(named: "Botao Mic"), for: .normal)
+            sendButtonLongPressGesture.isEnabled = true
+            sendButtonPanGesture.isEnabled = true
         } else {
-            btnEnviar.setImage(UIImage(named: "Botao Enviar"), for: .normal)
-            btnEnviarLongPressGesture.isEnabled = false
-            btnEnviarPanGesture.isEnabled = false
+            sendButton.setImage(UIImage(named: "Botao Enviar"), for: .normal)
+            sendButtonLongPressGesture.isEnabled = false
+            sendButtonPanGesture.isEnabled = false
         }
     }
     
@@ -86,34 +86,96 @@ class ViewController: UIViewController {
 extension ViewController : UIGestureRecognizerDelegate {
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return (gestureRecognizer == btnEnviarLongPressGesture && otherGestureRecognizer == btnEnviarPanGesture)
+        return (gestureRecognizer == sendButtonLongPressGesture && otherGestureRecognizer == sendButtonPanGesture)
     }
 }
 
 // MARK: Gravação de áudio
 extension ViewController : AVAudioRecorderDelegate {
-    func updateUi(recording: Bool) {
+    private func updateInterface(recording: Bool) {
         UIView.animate(withDuration: 0.3, animations: {
             if recording {
-                self.btnEnviarWidthConstraint.constant = 45
-                self.btnEnviarHeightConstraint.constant = 45
+                self.sendButtonWidthConstraint.constant = 45
+                self.sendButtonHeightConstraint.constant = 45
                 self.view.layoutIfNeeded()
-                self.btnEnviar.layer.cornerRadius = 22.5
+                self.sendButton.layer.cornerRadius = 22.5
             } else {
-                self.btnEnviarWidthConstraint.constant = 35
-                self.btnEnviarHeightConstraint.constant = 35
+                self.sendButtonWidthConstraint.constant = 35
+                self.sendButtonHeightConstraint.constant = 35
                 self.view.layoutIfNeeded()
-                self.btnEnviar.layer.cornerRadius = 17.5
+                self.sendButton.layer.cornerRadius = 17.5
             }
             
             self.viewAudioTimer.isHidden = !recording
-            self.viewDeslizarBtn.isHidden = !recording
+            self.slideToCancelView.isHidden = !recording
             
-            self.tfMensagem.isHidden = recording
+            self.textField.isHidden = recording
         })
     }
     
-    @objc func updateAudioTimer() {
+    @IBAction private func btnEnviarLongPress(_ sender: UILongPressGestureRecognizer) {
+        if sender.state == .began { // Botão de enviar está sendo pressionado, começar a gravar áudio
+            updateInterface(recording: true)
+            startAudioTimer()
+            startRecording()
+        } else if sender.state == .ended { // Botão de enviar foi solto, parar gravação
+            updateInterface(recording: false)
+            stopRecording()
+            enviarAudio()
+            stopAudioTimer()
+        } else if sender.state == .cancelled { // Botão de enviar foi cancelado, cancelar gravação
+            stopAudioTimer()
+            cancelRecording()
+            updateInterface(recording: false)
+        }
+    }
+    
+    @IBAction private func btnEnviarPan(_ sender: UIPanGestureRecognizer) {
+        let translation = sender.translation(in: self.view)
+        
+        // Só habilitar gesto de deslizar quando o botão estiver sendo pressionado
+        if sender.view != nil && sendButtonLongPressGesture.state == .changed {
+            sendButtonTrailingConstraint.constant = sendButtonTrailingConstraint.constant - translation.x
+            
+            let porcentagem = 100 * (sendButtonTrailingConstraint.constant / self.view.frame.width)
+            
+            if porcentagem > 30 {
+                stopAudioTimer()
+            }
+        }
+        
+        sender.setTranslation(CGPoint.zero, in: self.view)
+    }
+    
+    private func stopAudioTimer() {
+        if audioTimer != nil {
+            sendButtonLongPressGesture.isEnabled = false
+            sendButtonPanGesture.isEnabled = false
+            
+            UIView.animate(withDuration: 1, animations: {
+                self.sendButtonTrailingConstraint.constant = 5
+            })
+            
+            audioTimer?.invalidate()
+            audioDurationInSecs = 0
+            lbAudioTimer.text = "0:00"
+            audioTimer = nil
+            
+            sendButtonPanGesture.isEnabled = true
+            sendButtonLongPressGesture.isEnabled = true
+        }
+    }
+    
+    private func startAudioTimer() {
+        audioTimer = Timer.scheduledTimer(
+            timeInterval: 1,
+            target: self,
+            selector: #selector(updateAudioTimer),
+            userInfo: nil,
+            repeats: true)
+    }
+    
+    @objc private func updateAudioTimer() {
         audioDurationInSecs += 1
         let minutes = Int(floor(Double(audioDurationInSecs / 60)))
         
@@ -126,70 +188,7 @@ extension ViewController : AVAudioRecorderDelegate {
         lbAudioTimer.text = "\(minutes):\(String(format: "%02d", audioDurationInSecs % 60))"
     }
     
-    @IBAction func btnEnviarLongPress(_ sender: UILongPressGestureRecognizer) {
-        if sender.state == .began { // Botão de enviar está sendo pressionado, começar a gravar áudio
-            updateUi(recording: true)
-            startAudioTimer()
-            startRecording()
-        } else if sender.state == .ended { // Botão de enviar foi solto, parar gravação
-            updateUi(recording: false)
-            stopRecording()
-            enviarAudio()
-            stopAudioTimer()
-        } else if sender.state == .cancelled { // Botão de enviar foi cancelado, cancelar gravação
-            stopAudioTimer()
-            cancelRecording()
-            updateUi(recording: false)
-        }
-    }
-    
-    @IBAction func btnEnviarPan(_ sender: UIPanGestureRecognizer) {
-        let translation = sender.translation(in: self.view)
-        
-        // Só habilitar gesto de deslizar quando o botão estiver sendo pressionado
-        if sender.view != nil && btnEnviarLongPressGesture.state == .changed {
-            btnEnviarTrailingConstraint.constant = btnEnviarTrailingConstraint.constant - translation.x
-            
-            let porcentagem = 100 * (btnEnviarTrailingConstraint.constant / self.view.frame.width)
-            
-            if porcentagem > 30 {
-                stopAudioTimer()
-            }
-        }
-        
-        sender.setTranslation(CGPoint.zero, in: self.view)
-    }
-    
-    func stopAudioTimer() {
-        if audioTimer != nil {
-            btnEnviarLongPressGesture.isEnabled = false
-            btnEnviarPanGesture.isEnabled = false
-            
-            UIView.animate(withDuration: 1, animations: {
-                self.btnEnviarTrailingConstraint.constant = 5
-            })
-            
-            audioTimer?.invalidate()
-            audioDurationInSecs = 0
-            lbAudioTimer.text = "0:00"
-            audioTimer = nil
-            
-            btnEnviarPanGesture.isEnabled = true
-            btnEnviarLongPressGesture.isEnabled = true
-        }
-    }
-    
-    func startAudioTimer() {
-        audioTimer = Timer.scheduledTimer(
-            timeInterval: 1,
-            target: self,
-            selector: #selector(updateAudioTimer),
-            userInfo: nil,
-            repeats: true)
-    }
-    
-    
-    func startRecording() {
+    private func startRecording() {
         if audioRecorder == nil {
             audioFilename = UUID().uuidString
             let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -210,13 +209,13 @@ extension ViewController : AVAudioRecorderDelegate {
         }
     }
     
-    func stopRecording() {
+    private func stopRecording() {
         print("Stopped recording...")
         audioRecorder.stop()
         audioRecorder = nil
     }
     
-    func cancelRecording() {
+    private func cancelRecording() {
         stopRecording()
         
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -224,16 +223,16 @@ extension ViewController : AVAudioRecorderDelegate {
         let url = documentDirectory.appendingPathComponent("\(audioFilename).m4a")
         
         do {
-            print("Excluindo áudio -> \(audioFilename).m4a")
+            print("Removing audio -> \(audioFilename).m4a")
             try FileManager.default.removeItem(at: url)
         } catch {
             print(error)
         }
     }
     
-    func enviarAudio() {
+    private func enviarAudio() {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         let documentDirectory = paths[0]
-        let url = documentDirectory.appendingPathComponent("\(audioFilename).m4a")
+        _ = documentDirectory.appendingPathComponent("\(audioFilename).m4a")
     }
 }
