@@ -23,12 +23,12 @@ class ViewController: UIViewController {
     @IBOutlet private var lbAudioTimer: UILabel!
     @IBOutlet private var containerViewBottomConstraint: NSLayoutConstraint!
     
-    var audioDurationInSecs = 0
-    var audioTimer: Timer?
-    var recordingSession: AVAudioSession!
-    var audioRecorder: AVAudioRecorder!
-    var audioFilename = ""
-    var audioPlayer: AVPlayer!
+    private var audioDurationInSecs = 0
+    private var audioTimer: Timer?
+    private var recordingSession: AVAudioSession!
+    private var audioRecorder: AVAudioRecorder!
+    private var audioFilename = ""
+    private var audioPlayer: AVPlayer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,11 +68,11 @@ class ViewController: UIViewController {
     @objc private func textFieldDidChange() {
         let mensagem = textField.text ?? ""
         if mensagem.isEmpty {
-            sendButton.setImage(UIImage(named: "Botao Mic"), for: .normal)
+            sendButton.setImage(UIImage(named: "microphone_button"), for: .normal)
             sendButtonLongPressGesture.isEnabled = true
             sendButtonPanGesture.isEnabled = true
         } else {
-            sendButton.setImage(UIImage(named: "Botao Enviar"), for: .normal)
+            sendButton.setImage(UIImage(named: "send_button"), for: .normal)
             sendButtonLongPressGesture.isEnabled = false
             sendButtonPanGesture.isEnabled = false
         }
@@ -145,7 +145,7 @@ extension ViewController : AVAudioRecorderDelegate {
             }
         }
         
-        sender.setTranslation(CGPoint.zero, in: self.view)
+        sender.setTranslation(.zero, in: self.view)
     }
     
     private func stopAudioTimer() {
